@@ -1,6 +1,9 @@
 import json
-
+import random
 import torchvision
+import PIL
+from PIL import Image as pImage
+from datasets import Dataset
 
 
 # DATA FILTERS
@@ -37,7 +40,6 @@ class WebdatasetFilter():
         except:
             return False
 
-
 transforms = torchvision.transforms.Compose([
     torchvision.transforms.ToTensor(),
     torchvision.transforms.Resize(512),
@@ -51,6 +53,68 @@ effnet_preprocess = torchvision.transforms.Compose([
         mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)
     )
 ])
+
+class ImageDataset(Dataset):
+    def __init__(
+        self,
+        dataset,
+        image_column="image",
+    ):
+        super().__init__()
+        self.dataset = dataset
+        self.image_column = image_column
+
+        self.transform = transforms
+
+    def __len__(self):
+        return len(self.dataset)
+
+    def __getitem__(self, index):
+        image = self.dataset[index][self.image_column]
+        return self.transform(image)
+
+
+class ImageTextDataset(ImageDataset):
+    def __init__(
+        self,
+        dataset,
+        image_column="image",
+        caption_column="text",
+    ):
+        super().__init__(
+            dataset,
+            image_column=image_column,
+        )
+        self.caption_column: str = caption_column
+
+    def __getitem__(self, index):
+        try:
+            image = self.dataset[index][self.image_column]
+            descriptions = self.dataset[index][self.caption_column]
+
+        except PIL.UnidentifiedImageError:
+            print("Error reading image, most likely corrupt, skipping...")
+            image_found = False
+            current_index = 1
+            while not image_found:
+                try:
+                    image = self.dataset[index + current_index][self.image_column]
+                    descriptions = self.dataset[index + current_index][self.caption_column]
+                    image_found = True
+                except PIL.UnidentifiedImageError:
+                    current_index += 1
+
+        if self.caption_column is None or descriptions is None:
+            text = ""
+        elif isinstance(descriptions, list):
+            if len(descriptions) == 0:
+                text = ""
+            else:
+                text = random.choice(descriptions)
+        else:
+            text = descriptions
+        # max length from the paper
+        return self.transform(image), text
 
 
 def identity(x):
