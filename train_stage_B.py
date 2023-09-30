@@ -288,7 +288,10 @@ def train(gpu_id):
     # - SETUP WANDB -
     print("Num trainable params:", sum(p.numel() for p in model.parameters() if p.requires_grad))
     if checkpoint is not None and not args.generate_new_wandb_id:
-        run_id = checkpoint['wandb_run_id']
+        try:
+            run_id = checkpoint['wandb_run_id']
+        except KeyError:
+            run_id = wandb.util.generate_id()
     else:
         run_id = wandb.util.generate_id()
     wandb.init(project=args.wandb_project, name=args.run_name, entity=args.wandb_entity, id=run_id,

@@ -308,7 +308,13 @@ def train(gpu_id):
             model_ema.load_state_dict(model.state_dict())
 
     # - SETUP WANDB -
-    run_id = checkpoint['wandb_run_id'] if checkpoint is not None else wandb.util.generate_id()
+    if checkpoint is not None and not args.generate_new_wandb_id:
+        try:
+            run_id = checkpoint['wandb_run_id']
+        except KeyError:
+            run_id = wandb.util.generate_id()
+    else:
+        run_id = wandb.util.generate_id()
     wandb.init(project=args.wandb_project, name=args.run_name, entity=args.wandb_entity, id=run_id, resume="allow")
 
     print("Num trainable params:", sum(p.numel() for p in model.parameters() if p.requires_grad))
