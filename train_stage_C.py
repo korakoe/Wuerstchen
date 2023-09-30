@@ -169,13 +169,13 @@ parser.add_argument(
 parser.add_argument(
     "--wandb_project",
     type=str,
-    default="",
+    default=None,
     help="The wandb project you wish to use",
 )
 parser.add_argument(
     "--wadnv_entity",
     type=str,
-    default="",
+    default=None,
     help="The wandb entity you wish to use",
 )
 
@@ -209,8 +209,8 @@ class Arguments:
     vq_model_path = ""
     stage_b_path = ""
 
-    wandb_project = ""
-    wandb_entity = ""
+    wandb_project = None
+    wandb_entity = None
 
 
 args = parser.parse_args(namespace=Arguments())
