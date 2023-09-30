@@ -172,7 +172,7 @@ class Arguments:
     updates = 1500000
     warmup_updates = 10000
     ema_start = 5000
-    ema_every = 100
+    ema_every = 5000
     ema_beta = 0.9
     batch_size = 8
     grad_accum_steps = 1
