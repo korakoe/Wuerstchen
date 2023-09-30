@@ -399,7 +399,7 @@ def train(gpu_id):
                 if it < args.ema_start:
                     model_ema.load_state_dict(model.state_dict())
                 else:
-                    model_ema.update_weights_ema(model.modules, beta=args.ema_beta)
+                    model_ema.update_weights_ema(model, beta=args.ema_beta)
         else:
             with model.no_sync():
                 loss_adjusted.backward()
@@ -479,7 +479,7 @@ def train(gpu_id):
                 with torch.cuda.amp.autocast(dtype=_float16_dtype):
                     pred_noise = model(noised_embeddings, t, clip_text_embeddings)
                     pred = diffuzz.undiffuse(noised_embeddings, t, torch.zeros_like(t), pred_noise)
-                    sampled = diffuzz.sample(model.modules, {'c': clip_text_embeddings},
+                    sampled = diffuzz.sample(model, {'c': clip_text_embeddings},
                                              unconditional_inputs={"c": clip_text_embeddings_uncond},
                                              shape=effnet_features.shape, cfg=6)[-1]
                     sampled_ema = diffuzz.sample(model_ema, {'c': clip_text_embeddings},

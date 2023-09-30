@@ -350,8 +350,8 @@ def train(gpu_id):
 
             t = (1 - torch.rand(images.size(0), device=device)).mul(1.08).add(0.001).clamp(0.001, 1.0)
             latents = vqmodel.encode(images)[2]
-            noised_latents, mask = model.get_submodules("generator").add_noise(latents, t)
-            loss_weight = model.get_submodules("generator").get_loss_weight(t, mask)
+            noised_latents, mask = model.get_submodule("generator").add_noise(latents, t)
+            loss_weight = model.get_submodule("generator").get_loss_weight(t, mask)
 
             effnet_preproc = effnet_preprocess(images)
 
@@ -400,8 +400,8 @@ def train(gpu_id):
 
             if it % args.extra_ckpt_every == 0:
                 torch.save({
-                    'state_dict': model.get_submodules("generator").state_dict(),
-                    'effnet_state_dict': model.get_submodules("effnet").state_dict(),
+                    'state_dict': model.get_submodule("generator").state_dict(),
+                    'effnet_state_dict': model.get_submodule("effnet").state_dict(),
                     'optimizer_state_dict': optimizer.state_dict(),
                     'scheduler_last_step': scheduler.last_epoch,
                     'iter': it,
@@ -409,8 +409,8 @@ def train(gpu_id):
                     'wandb_run_id': run_id,
                 }, os.path.join(args.save_checkpoint_path, args.run_name, f"model_stage_B_{it}.pt"))
             torch.save({
-                'state_dict': model.get_submodules("generator").state_dict(),
-                'effnet_state_dict': model.get_submodules("effnet").state_dict(),
+                'state_dict': model.get_submodule("generator").state_dict(),
+                'effnet_state_dict': model.get_submodule("effnet").state_dict(),
                 'optimizer_state_dict': optimizer.state_dict(),
                 'scheduler_last_step': scheduler.last_epoch,
                 'iter': it,
@@ -438,22 +438,22 @@ def train(gpu_id):
                 # ---
 
                 # Efficientnet stuff
-                effnet_embeddings = model.get_submodules("effnet")(effnet_preprocess(images))
+                effnet_embeddings = model.get_submodule("effnet")(effnet_preprocess(images))
                 effnet_embeddings_uncond = torch.zeros_like(effnet_embeddings)
                 # ---
 
                 t = (1 - torch.rand(images.size(0), device=device)).add(0.001).clamp(0.001, 1.0)
                 latents = vqmodel.encode(images)[2]
-                noised_latents, mask = model.get_submodules("generator").add_noise(latents, t)
-                pred = model.get_submodules("generator")(noised_latents, t, effnet_embeddings, clip_text_embeddings)
+                noised_latents, mask = model.get_submodule("generator").add_noise(latents, t)
+                pred = model.get_submodule("generator")(noised_latents, t, effnet_embeddings, clip_text_embeddings)
                 pred_tokens = pred.div(0.1).softmax(dim=1).permute(0, 2, 3, 1) @ vqmodel.vquantizer.codebook.weight.data
                 pred_tokens = vqmodel.vquantizer.forward(pred_tokens, dim=-1)[-1]
-                sampled = sample(model.get_submodules("generator"), {'effnet': effnet_embeddings, 'byt5': clip_text_embeddings},
+                sampled = sample(model.get_submodule("generator"), {'effnet': effnet_embeddings, 'byt5': clip_text_embeddings},
                                  (clip_text_embeddings.size(0), images.size(-2) // 4, images.size(-1) // 4),
                                  unconditional_inputs={'effnet': effnet_embeddings_uncond,
                                                        'byt5': clip_embeddings_uncond})
 
-                sampled_noimg = sample(model.get_submodules("generator"),
+                sampled_noimg = sample(model.get_submodule("generator"),
                                        {'effnet': effnet_embeddings, 'byt5': clip_text_embeddings},
                                        (clip_text_embeddings.size(0), images.size(-2) // 4, images.size(-1) // 4),
                                        unconditional_inputs={'effnet': effnet_embeddings_uncond,
