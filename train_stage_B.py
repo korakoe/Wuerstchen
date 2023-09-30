@@ -154,6 +154,12 @@ parser.add_argument(
     help="The path to where you want to save models",
 )
 parser.add_argument(
+    "--vq_model_path",
+    type=str,
+    default="",
+    help="The path to where your vq model",
+)
+parser.add_argument(
     "--wandb_project",
     type=str,
     default="",
@@ -193,6 +199,7 @@ class Arguments:
     load = True
     load_checkpoint_path = ""
     save_checkpoint_path = ""
+    vq_model_path = ""
 
     wandb_project = ""
     wandb_entity = ""
@@ -257,7 +264,7 @@ def train(gpu_id):
 
     # - vqmodel -
     vqmodel = VQModel().to(device)
-    vqmodel.load_state_dict(torch.load("models/vqgan_f4_v1_500k.pt", map_location=device)['state_dict'])
+    vqmodel.load_state_dict(torch.load(args.vq_model_path, map_location=device)['state_dict'])
     vqmodel.eval().requires_grad_(False)
 
     # - CLIP text encoder
