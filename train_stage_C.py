@@ -335,8 +335,8 @@ def train(gpu_id):
         except KeyError:
             print("Failed loading scheduler, skipping...")
 
+        scaler = torch.cuda.amp.GradScaler()
         if checkpoint is not None and 'grad_scaler_state_dict' in checkpoint:
-            scaler = torch.cuda.amp.GradScaler()
             scaler.load_state_dict(checkpoint['grad_scaler_state_dict'])
 
     start_iter = 1
@@ -397,7 +397,7 @@ def train(gpu_id):
             optimizer.zero_grad(set_to_none=True)
             if (it % args.ema_every == 0 or it == args.max_iters):
                 if it < args.ema_start:
-                    model_ema.load_state_dict(model.modules.state_dict())
+                    model_ema.load_state_dict(model.state_dict())
                 else:
                     model_ema.update_weights_ema(model.modules, beta=args.ema_beta)
         else:
@@ -431,7 +431,7 @@ def train(gpu_id):
 
             if it % args.extra_ckpt_every == 0:
                 torch.save({
-                    'state_dict': model.modules.state_dict(),
+                    'state_dict': model.state_dict(),
                     'ema_state_dict': model_ema.state_dict(),
                     'optimizer_state_dict': optimizer.state_dict(),
                     'scheduler_last_step': scheduler.last_epoch,
@@ -444,7 +444,7 @@ def train(gpu_id):
                 }, os.path.join(args.save_checkpoint_path, args.run_name, f"model_stage_C_{it}.pt"))
 
             torch.save({
-                'state_dict': model.modules.state_dict(),
+                'state_dict': model.state_dict(),
                 'ema_state_dict': model_ema.state_dict(),
                 'optimizer_state_dict': optimizer.state_dict(),
                 'scheduler_last_step': scheduler.last_epoch,
