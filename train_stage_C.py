@@ -250,7 +250,7 @@ def train(gpu_id):
         dataset = ImageTextDataset(dataset, args.image_column, args.text_column)
 
     real_batch_size = args.batch_size // args.grad_accum_steps
-    dataloader = DataLoader(dataset, batch_size=real_batch_size, num_workers=8, pin_memory=False)
+    dataloader = DataLoader(dataset, batch_size=real_batch_size, num_workers=2, pin_memory=False)
     print("REAL BATCH SIZE:", real_batch_size)
 
     # --- PREPARE MODELS ---

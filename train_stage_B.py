@@ -245,7 +245,7 @@ def train(gpu_id):
     real_batch_size = args.batch_size // args.grad_accum_steps
     print("REAL BATCH SIZE:", real_batch_size)
 
-    dataloader = DataLoader(dataset, batch_size=real_batch_size, num_workers=8, pin_memory=True)
+    dataloader = DataLoader(dataset, batch_size=real_batch_size, num_workers=2, pin_memory=True)
 
     # --- PREPARE MODELS ---
     try:
