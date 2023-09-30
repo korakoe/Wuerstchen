@@ -313,8 +313,8 @@ def train(gpu_id):
         except KeyError:
             print("Failed loading scheduler, skipping...")
 
+        scaler = torch.cuda.amp.GradScaler()
         if checkpoint is not None and 'grad_scaler_state_dict' in checkpoint:
-            scaler = torch.cuda.amp.GradScaler()
             scaler.load_state_dict(checkpoint['grad_scaler_state_dict'])
 
     grad_norm = torch.tensor(0, device=device)
