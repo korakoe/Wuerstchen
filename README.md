@@ -1,4 +1,10 @@
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1KeN407dItcjLcWdMLrByZ8mPa1MT2_DJ?usp=sharing)
+<br>
+<br>
+#### New Training Colab <a target="_blank" href="https://colab.research.google.com/github/korakoe/Wuerstchen/blob/main/Train_w%C3%BCrstchen.ipynb">
+  <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
+</a>
+
 # Würstchen
 ![huggingface-blog-post-thumbnail](https://github.com/dome272/Wuerstchen/assets/61938694/b4253c80-2a88-41a5-80e5-cadfe17a05e0)
 
