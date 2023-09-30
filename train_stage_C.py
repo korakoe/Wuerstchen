@@ -325,21 +325,35 @@ def train(gpu_id):
     # optimizer = Lion(model.parameters(), lr=lr / 3) # eps=1e-4
     scheduler = GradualWarmupScheduler(optimizer, multiplier=1, total_epoch=args.warmup_updates)
     if checkpoint is not None:
-        optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
-        scheduler.last_epoch = checkpoint['scheduler_last_step']
-    scaler = torch.cuda.amp.GradScaler()
-    if checkpoint is not None and 'grad_scaler_state_dict' in checkpoint:
-        scaler.load_state_dict(checkpoint['grad_scaler_state_dict'])
+        try:
+            optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+        except KeyError:
+            print("Failed loading optimizer, skipping...")
+
+        try:
+            scheduler.last_epoch = checkpoint['scheduler_last_step']
+        except KeyError:
+            print("Failed loading scheduler, skipping...")
+
+        if checkpoint is not None and 'grad_scaler_state_dict' in checkpoint:
+            scaler = torch.cuda.amp.GradScaler()
+            scaler.load_state_dict(checkpoint['grad_scaler_state_dict'])
 
     start_iter = 1
     grad_norm = torch.tensor(0, device=device)
     if checkpoint is not None:
-        start_iter = checkpoint['scheduler_last_step'] * args.grad_accum_steps + 1
+        try:
+            start_iter = checkpoint['scheduler_last_step'] * args.grad_accum_steps + 1
+        except KeyError:
+            start_iter = 1
         print("RESUMING TRAINING FROM ITER ", start_iter)
 
     ema_loss = None
     if checkpoint is not None:
-        ema_loss = checkpoint['metrics']['ema_loss']
+        try:
+            ema_loss = checkpoint['metrics']['ema_loss']
+        except KeyError:
+            ema_loss = None
 
     if checkpoint is not None:
         del checkpoint  # cleanup memory
