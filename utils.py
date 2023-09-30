@@ -3,7 +3,7 @@ import random
 import torchvision
 import PIL
 from PIL import Image as pImage
-from datasets import Dataset
+from torch.utils.data import Dataset
 
 
 # DATA FILTERS
