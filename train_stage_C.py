@@ -224,9 +224,6 @@ def train(gpu_id):
 
     # only ampere gpu architecture allows these
     _float16_dtype = torch.float16 if not is_torch_bf16_available() else torch.bfloat16
-    if is_torch_tf32_available():
-        torch.backends.cuda.matmul.allow_tf32 = True
-        torch.backends.cudnn.allow_tf32 = True
 
     # --- PREPARE DATASET ---
     if args.wd_dataset_location:
